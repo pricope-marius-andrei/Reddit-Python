@@ -1,40 +1,40 @@
-import requests
-import os
 from dotenv import load_dotenv
 
+from flask import Flask, render_template
+
+from reddit import Reddit
+
+app = Flask(__name__)
+
+
 load_dotenv()
-
-class Reddit:
-    def __init__(self):
-        self.url = "https://www.reddit.com/api/v1/access_token"
-        self.reddit_username = os.getenv('REDDIT_USERNAME')
-        self.reddit_password = os.getenv('REDDIT_PASSWORD')
-        self.client_id = os.getenv('CLIENT_ID')
-        self.client_secret = os.getenv('CLIENT_SECRET')
-        self.access_token = ""
-        self.api_route = "https://oauth.reddit.com"
-
-    def generate_token(self):
-        data = {
-            "grant_type": "password",
-            "username": self.reddit_username,
-            "password": self.reddit_password,
-        }
-
-        auth = (self.client_id, self.client_secret)
-        headers = {"User-Agent": "MyApp/1.0"}
-
-        response = requests.post(self.url, data=data, auth=auth, headers=headers)
-
-        self.access_token = response.json()["access_token"]
-
-    def get_call(self, path, params):
-        headers = {"Authorization": "bearer " + self.access_token, "User-Agent": "ChangeMeClient/0.1 by YourUsername"}
-        response = requests.get(self.api_route + path + params, headers=headers)
-        return response.json()
 
 reddit = Reddit()
 
 reddit.generate_token()
 
-print(reddit.get_call("/api/v1/me/prefs", ""))
+about = reddit.get_call("/r/EASportsFC/about", "")
+
+about_data = about["data"]
+
+
+# data = reddit.get_call("/r/EASportsFC/top", "?g=GLOBAL&count=0&limit=25")["data"]
+
+data = reddit.get_call("/r/EASportsFC/top", "?t=day&count=0&limit=26")
+
+print(data)
+
+# for post in data["children"]:
+#     print(post["data"]["url"])
+
+@app.route('/')
+def home():
+    return render_template('index.html',
+                           display_name=about_data["display_name"],
+                           accounts_active=about_data["accounts_active"],
+                           subscribers=about_data["subscribers"],
+                           description=about_data["public_description"])
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
