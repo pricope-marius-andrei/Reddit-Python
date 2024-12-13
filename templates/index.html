@@ -3,12 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My First Web Page</title>
+    <title>Reddit Info</title>
 </head>
 <body>
     <h1>Name: {{display_name}}</h1>
     <p>Description: {{description}}</p>
     <p>Accounts: {{accounts_active}}</p>
     <p>Subscribers: {{subscribers}}</p>
+    <p>Number of the last 24 hours posts: {{last_24_hours_posts}}</p>
+
+    <h2>Threads:</h2>
+    {% for thread in threads_list %}
+        <a href="{{ thread['data']['url'] }}">Title: {{thread["data"]["title"]}}</a>
+        <p>Author: {{thread["data"]["author"]}}</p>
+        <p>Number of comments: {{thread["data"]["num_comments"]}}</p>
+        <p>Score: {{thread["data"]["score"]}}</p>
+    {% endfor %}
+
+    <h2>Flair's statistics from the last {{threads_limit}} hot threads</h2>
+    {% for flair in flair_freq_list %}
+      <p>{{ flair[0] }} : {{flair[1]}} </p>
+    {% endfor %}
 </body>
 </html>
