@@ -11,6 +11,8 @@ class Reddit:
         self.access_token = ""
         self.api_route = "https://oauth.reddit.com"
 
+        self.generate_token()
+
     def generate_token(self):
         data = {
             "grant_type": "password",

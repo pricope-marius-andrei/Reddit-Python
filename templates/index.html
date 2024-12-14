@@ -4,25 +4,167 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reddit Info</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f7f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #1a1a1b;
+        }
+
+        p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        a {
+            color: #0079d3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .thread {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+        }
+
+        .thread h3 {
+            margin: 0 0 5px;
+        }
+
+        .tier-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tier-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .tier-item span.position {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .tier-s {
+            background-color: #ff4500;
+        }
+
+        .tier-a {
+            background-color: #ff8717;
+        }
+
+        .tier-b {
+            background-color: #ffd635;
+        }
+
+        .tier-c {
+            background-color: #69c4ff;
+        }
+
+        .tier-d {
+            background-color: #0079d3;
+        }
+
+        .position-1 span.position {
+            background-color: gold;
+            color: black;
+        }
+
+        .position-1 .item-text {
+            color: black;
+        }
+
+        .position-2 .item-text {
+            color: black;
+        }
+
+        .position-3 .item-text {
+            color: black;
+        }
+
+        .position-2 span.position {
+            background-color: silver;
+            color: black;
+        }
+
+        .position-3 span.position {
+            background-color: #cd7f32;
+            color: black;
+        }
+    </style>
 </head>
 <body>
-    <h1>Name: {{display_name}}</h1>
-    <p>Description: {{description}}</p>
-    <p>Accounts: {{accounts_active}}</p>
-    <p>Subscribers: {{subscribers}}</p>
-    <p>Number of the last 24 hours posts: {{last_24_hours_posts}}</p>
+    <div class="container">
+        <h1>Name: {{about_data["display_name"]}}</h1>
+        <p><strong>Description:</strong> {{about_data["public_description"]}}</p>
+        <p><strong>Accounts Active:</strong> {{about_data["accounts_active"]}}</p>
+        <p><strong>Subscribers:</strong> {{about_data["subscribers"]}}</p>
+        <p><strong>Posts in the Last 24 Hours:</strong> {{last_24_hours_posts}}</p>
 
-    <h2>Threads:</h2>
-    {% for thread in threads_list %}
-        <a href="{{ thread['data']['url'] }}">Title: {{thread["data"]["title"]}}</a>
-        <p>Author: {{thread["data"]["author"]}}</p>
-        <p>Number of comments: {{thread["data"]["num_comments"]}}</p>
-        <p>Score: {{thread["data"]["score"]}}</p>
-    {% endfor %}
+        <h2>Threads</h2>
+        {% if threads_list|length > 0 %}
+            {% for thread in threads_list %}
+            <div class="thread">
+                <a href="{{ thread['data']['url'] }}"><h3>{{ thread["data"]["title"] }}</h3></a>
+                <p><strong>Author:</strong> {{thread["data"]["author"]}}</p>
+                <p><strong>Comments:</strong> {{thread["data"]["num_comments"]}}</p>
+                <p><strong>Score:</strong> {{thread["data"]["score"]}}</p>
+            </div>
+            {% endfor %}
+        {%else%}
+            <p>Threads not exist!</p>
+        {%endif%}
 
-    <h2>Flair's statistics from the last {{threads_limit}} hot threads</h2>
-    {% for flair in flair_freq_list %}
-      <p>{{ flair[0] }} : {{flair[1]}} </p>
-    {% endfor %}
+        <h2>Flair's Statistics from the Last {{threads_limit}} Hot Threads</h2>
+        {% if flair_freq_list|length > 0 %}
+            <ul class="tier-list">
+               {% for flair in flair_freq_list %}
+                    <li class="tier-item {% if loop.index == 1 %}position-1{% elif loop.index == 2 %}position-2{% elif loop.index == 3 %}position-3{% elif flair[1] > 50 %}tier-s{% elif flair[1] > 30 %}tier-a{% elif flair[1] > 20 %}tier-b{% elif flair[1] > 10 %}tier-c{% else %}tier-d{% endif %}">
+                        <span class="position">{{ loop.index }}</span>
+                        <div class="item-text">{{ flair[0] }} : {{ flair[1] }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {%else%}
+            <p>Flairs not exist!</p>
+        {%endif%}
+    </div>
 </body>
 </html>
